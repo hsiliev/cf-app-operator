@@ -1,0 +1,34 @@
+#!/usr/bin/env ash
+
+set -e
+
+source colors.sh
+
+prettyPrint "\n${light_cyan}################################################"
+prettyPrint "${light_cyan}####                                         ###"
+prettyPrint "${light_cyan}####               ${cyan}${underline}${bold}CF Push job${reset}${light_cyan}               ###"
+prettyPrint "${light_cyan}####                                         ###"
+prettyPrint "${light_cyan}################################################"
+
+cd $HOME
+
+echo -e "Extracting manifest ..."
+echo "$APP_MANIFEST" > manifest.yaml
+
+echo -e "Downloading application ..."
+mkdir -p app
+(cd app && wget -qcO- "$APP_URL" | tar xz)
+
+echo -e "Logging to CF ..."
+if [[ -z "${SKIP_SSL_VALIDATION}" ]]; then
+  FLAGS="--skip-ssl-validation"
+fi
+cf version
+cf api "$CF_API" "$FLAGS"
+cf auth
+cf target -o "$CF_ORG" -s "$CF_SPACE"
+
+echo -e "Pushing application ..."
+cf push -f manifest.yaml -p app
+
+echo "Done."

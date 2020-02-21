@@ -1,0 +1,23 @@
+#!/bin/bash
+
+set -e
+
+REPO=$1
+if [ -z "$REPO" ]; then
+  echo "No docker repository specified"
+  exit 1
+fi
+echo "Using docker repository $REPO"
+
+echo ""
+docker login
+
+echo ""
+echo "Building docker image ..."
+echo ""
+docker build -t "$REPO/cf-app-operator-job:latest" .
+
+echo ""
+echo "Pushing docker image $REPO/cf-app-operator-job:latest ..."
+echo ""
+docker push "$REPO/cf-app-operator-job:latest"
