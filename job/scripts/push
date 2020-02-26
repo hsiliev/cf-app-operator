@@ -12,23 +12,26 @@ prettyPrint "${light_cyan}################################################"
 
 cd $HOME
 
-echo -e "Extracting manifest ..."
+prettyPrint "${yellow}Extracting manifest ..."
 echo "$APP_MANIFEST" > manifest.yaml
 
-echo -e "Downloading application ..."
+prettyPrint "${yellow}Downloading application ..."
 mkdir -p app
 (cd app && wget -qcO- "$APP_URL" | tar xz)
 
-echo -e "Logging to CF ..."
-if [[ -z "${SKIP_SSL_VALIDATION}" ]]; then
-  FLAGS="--skip-ssl-validation"
-fi
+prettyPrint "${yellow}Checking CF CLI ..."
 cf version
+
+prettyPrint "${yellow}Logging to CF ..."
+if [[ -n "${SKIP_SSL_VALIDATION}" ]]; then
+  FLAGS="--skip-ssl-validation"
+  prettyPrint "${red}Skipping ${bold}SSL validation${reset}${red} requested!"
+fi
 cf api "$CF_API" "$FLAGS"
 cf auth
 cf target -o "$CF_ORG" -s "$CF_SPACE"
 
-echo -e "Pushing application ..."
+prettyPrint "${yelow}Pushing application ..."
 cf push -f manifest.yaml -p app
 
-echo "Done."
+echo "${yellow}Done."

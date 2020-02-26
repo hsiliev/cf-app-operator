@@ -1,0 +1,33 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: cfpush
+spec:
+  template:
+    spec:
+      containers:
+        - name: cfpush
+          image: hsiliev/cf-app-operator-job:latest
+          env:
+            - name: APP_MANIFEST
+              value: |
+                ---
+                applications:
+                - name: appmapp
+            - name: APP_URL
+              value: https://github.com/hsiliev/cf-app-operator/blob/master/app/app.tar.gz?raw=true
+            - name: SKIP_SSL_VALIDATION
+              value: "true"
+            - name: CF_API
+              value: https://api.<domain>
+            - name: CF_ORG
+              value: demo
+            - name: CF_SPACE
+              value: demo
+            - name: CF_USERNAME
+              value: admin
+            - name: CF_PASSWORD
+              value: <password>
+          command: ["push"]
+      restartPolicy: OnFailure
+  backoffLimit: 3
